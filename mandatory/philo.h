@@ -22,9 +22,11 @@
 
 typedef struct s_vars
 {
+	char			*forks;
 	int				*args;
+	int				i;
 	pthread_t		*philo;
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	*mutex;
 }	t_vars;
 
 int		*parse(int argc, char **argv);
