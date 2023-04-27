@@ -23,13 +23,17 @@
 typedef struct s_vars
 {
 	char			*forks;
-	int				*args;
+	int				philos_num;
+	useconds_t		time_to_die;
+	useconds_t		time_to_eat;
+	useconds_t		time_to_sleep;
+	int				must_eat;
 	int				i;
 	pthread_t		*philo;
 	pthread_mutex_t	*mutex;
 }	t_vars;
 
-int		*parse(int argc, char **argv);
-int		ft_strlen(const char *s);
+int	parse(int argc, char **argv, t_vars *vars);
+int	ft_strlen(const char *s);
 
 #endif

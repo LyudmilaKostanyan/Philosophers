@@ -52,33 +52,50 @@ int	ft_atoi(const char *str)
 	return ((int)k);
 }
 
-int	*parse(int argc, char **argv)
+int	check_args(int argc, char **argv)
 {
 	int	i;
 	int	j;
-	int	*args;
 
 	i = 0;
 	while (++i < argc)
 		if (ft_strlen(argv[i]) == 0)
-			return (NULL);
+			return (1);
 	i = 0;
 	while (++i < argc)
 	{
 		j = -1;
 		while (++j < ft_strlen(argv[i]))
 			if (!ft_isdigit(argv[i][j]) && argv[i][j] != ' ')
-				return (NULL);
+				return (2);
 	}
-	args = (int *)malloc(sizeof(int) * (argc - 1));
-	if (!args)
-		return (NULL);
-	i = 0;
-	while (++i < argc)
+	return (0);
+}
+
+int	parse(int argc, char **argv, t_vars *vars)
+{
+	int	tmp;
+
+	if (check_args(argc, argv))
+		return (1);
+	vars->philos_num = ft_atoi(argv[1]);
+	tmp = ft_atoi(argv[2]);
+	if (tmp < 0 || vars->philos_num < 0)
+		return (2);
+	vars->time_to_die = tmp;
+	tmp = ft_atoi(argv[3]);
+	if (tmp < 0)
+		return (3);
+	vars->time_to_eat = tmp;
+	tmp = ft_atoi(argv[4]);
+	if (tmp < 0)
+		return (4);
+	vars->time_to_sleep = tmp;
+	if (argc == 6)
 	{
-		args[i - 1] = ft_atoi(argv[i]);
-		if (args[i - 1] < 0)
-			return (NULL);
+		vars->must_eat = ft_atoi(argv[5]);
+		if (vars->must_eat < 0)
+			return (5);
 	}
-	return (args);
+	return (0);
 }

@@ -1,5 +1,8 @@
 {
 	"files.associations": {
-		"_pthread_types.h": "c"
+		"_pthread_types.h": "c",
+		"stdio.h": "c",
+		"pthread.h": "c",
+		"_types.h": "c"
 	}
 }
