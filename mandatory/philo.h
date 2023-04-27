@@ -20,17 +20,23 @@
 # include <pthread.h>
 # include <sys/time.h>
 
+typedef struct s_philos
+{
+	pthread_t		philo;
+	pthread_mutex_t	*min_fork;
+	pthread_mutex_t	*max_fork;
+	int				is_dead;
+}	t_philos;
+
 typedef struct s_vars
 {
-	char			*forks;
+	t_philos		*philos;
 	int				philos_num;
+	pthread_mutex_t	*forks;
 	useconds_t		time_to_die;
 	useconds_t		time_to_eat;
 	useconds_t		time_to_sleep;
 	int				must_eat;
-	int				i;
-	pthread_t		*philo;
-	pthread_mutex_t	*mutex;
 }	t_vars;
 
 int	parse(int argc, char **argv, t_vars *vars);
