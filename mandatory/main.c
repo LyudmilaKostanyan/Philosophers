@@ -12,9 +12,25 @@
 
 #include "philo.h"
 
-void	*philo_actions(t_vars *vars)
+void	*philo_actions(t_philos *philo)
 {
-	(void)vars;
+	while (1)
+	{
+		printf("\e[34mPhilo %d is thinking\n", philo->num + 1);
+		pthread_mutex_lock(philo->min_fork);
+		printf("\e[33mPhilo %d has taken a min fork\n", philo->num + 1);
+		pthread_mutex_lock(philo->max_fork);
+		printf("\e[33mPhilo %d has taken a max fork\n", philo->num + 1);
+		printf("\e[32mPhilo %d is eating\n", philo->num + 1);
+		usleep(1000000);
+		pthread_mutex_unlock(philo->min_fork);
+		printf("\e[33mPhilo %d put the min fork back\n", philo->num + 1);
+		pthread_mutex_unlock(philo->max_fork);
+		printf("\e[33mPhilo %d put the max fork back\n", philo->num + 1);
+		printf("\e[35mPhilo %d is sleeping\n", philo->num + 1);
+		usleep(1000000);
+	}
+	return (NULL);
 }
 
 int	ft_init(t_vars *vars)
@@ -35,19 +51,28 @@ int	ft_init(t_vars *vars)
 	i = -1;
 	while (++i < vars->philos_num)
 	{
+		vars->philos[i].num = i;
 		if (i < (i + 1) % vars->philos_num)
 		{
-			vars->philos->min_fork = &vars->forks[i];
-			vars->philos->max_fork = &vars->forks[(i + 1) % vars->philos_num];
+			vars->philos[i].min_fork = &vars->forks[i];
+			vars->philos[i].max_fork = &vars->forks[(i + 1) % vars->philos_num];
 		}
 		else
 		{
-			vars->philos->min_fork = &vars->forks[i];
-			vars->philos->max_fork = &vars->forks[(i + 1) % vars->philos_num];
+			vars->philos[i].min_fork = &vars->forks[(i + 1) % vars->philos_num];
+			vars->philos[i].max_fork = &vars->forks[i];
 		}
-		if (pthread_create(&vars->philos->philo, NULL, f, vars))
+		if (pthread_create(&(vars->philos[i].philo), NULL, f, &vars->philos[i]))
 			return (4);
 	}
+	i = -1;
+	while (++i < vars->philos_num)
+		if (pthread_join(vars->philos[i].philo, NULL))
+			return (5);
+	i = -1;
+	while (++i < vars->philos_num)
+		if (pthread_mutex_destroy(&vars->forks[i]))
+			return (5);
 	return (0);
 }
 

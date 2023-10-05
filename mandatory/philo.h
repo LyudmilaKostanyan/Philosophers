@@ -26,6 +26,7 @@ typedef struct s_philos
 	pthread_mutex_t	*min_fork;
 	pthread_mutex_t	*max_fork;
 	int				is_dead;
+	int				num;
 }	t_philos;
 
 typedef struct s_vars

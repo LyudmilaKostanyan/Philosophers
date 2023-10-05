@@ -1,6 +1,6 @@
 NAME = philo
 CC = cc
-FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
 FILES_DIR = ./mandatory
 OBJS_DIR = ./objs
 FILES = $(wildcard $(FILES_DIR)/*.c)
