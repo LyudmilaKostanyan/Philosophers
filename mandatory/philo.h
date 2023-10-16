@@ -22,14 +22,15 @@
 
 typedef struct s_philos
 {
+	struct s_vars	*vars;
 	pthread_t		philo;
 	pthread_mutex_t	*min_fork;
 	pthread_mutex_t	*max_fork;
 	int				is_dead;
 	struct timeval	last_eating;
-	useconds_t		time_to_die;
-	useconds_t		time_to_eat;
-	useconds_t		time_to_sleep;
+	// useconds_t		time_to_die;
+	// useconds_t		time_to_eat;
+	// useconds_t		time_to_sleep;
 	int				num;
 }	t_philos;
 
