@@ -28,9 +28,6 @@ typedef struct s_philos
 	pthread_mutex_t	*max_fork;
 	int				is_dead;
 	struct timeval	last_eating;
-	// useconds_t		time_to_die;
-	// useconds_t		time_to_eat;
-	// useconds_t		time_to_sleep;
 	int				num;
 }	t_philos;
 
@@ -39,10 +36,14 @@ typedef struct s_vars
 	t_philos		*philos;
 	int				philos_num;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	output_lock;
+	pthread_mutex_t	die_lock;
 	useconds_t		time_to_die;
 	useconds_t		time_to_eat;
 	useconds_t		time_to_sleep;
 	int				must_eat;
+	int				*die;
+	struct timeval	sim_start;
 }	t_vars;
 
 int	parse(int argc, char **argv, t_vars *vars);

@@ -21,19 +21,45 @@ int	philo_is_dead(t_vars *vars)
 	while (++i < vars->philos_num)
 	{
 		gettimeofday(&time, NULL);
-		// printf("%ld\n", (time.tv_sec * 1000 + time.tv_usec / 1000)
-		// 	- (vars->philos[i].last_eating.tv_sec * 1000
-		// 	+ vars->philos[i].last_eating.tv_usec / 1000));
 		if ((time.tv_sec * 1000 + time.tv_usec / 1000)
 			- (vars->philos[i].last_eating.tv_sec * 1000
 			+ vars->philos[i].last_eating.tv_usec / 1000)
 			> vars->time_to_die)
 		{
-			printf("\e[31mPhilo %d is die\n", i + 1);
+			// pthread_mutex_lock(&vars->output_lock);
+			printf("\e[31m%ld Philo %d is die\n",
+				(time.tv_sec * 1000 + time.tv_usec / 1000)
+				- (vars->sim_start.tv_sec * 1000
+				+ vars->sim_start.tv_usec / 1000), i + 1);
+			// pthread_mutex_unlock(&vars->output_lock);
+			pthread_mutex_lock(&vars->die_lock);
+			*vars->die = 1;
+			pthread_mutex_unlock(&vars->die_lock);
 			return (1);
 		}
 	}
 	return (0);
+}
+
+void	action(t_philos *philos, char *str)
+{
+	struct timeval	time;
+
+	// pthread_mutex_lock(&philos->vars->output_lock);
+	pthread_mutex_lock(&philos->vars->die_lock);
+	if (*philos->vars->die)
+	{
+		// printf("asdasdasd\n");
+		pthread_mutex_unlock(&philos->vars->die_lock);
+		// pthread_mutex_unlock(&philos->vars->output_lock);
+		return ;
+	}
+	pthread_mutex_unlock(&philos->vars->die_lock);
+	gettimeofday(&time, NULL);
+	printf(str, (time.tv_sec * 1000 + time.tv_usec / 1000)
+			- (philos->vars->sim_start.tv_sec * 1000
+			+ philos->vars->sim_start.tv_usec / 1000), philos->num);
+	// pthread_mutex_unlock(&philos->vars->output_lock);
 }
 
 void	*philo_actions(void *data)
@@ -43,21 +69,39 @@ void	*philo_actions(void *data)
 	philos = (t_philos *)data;
 	while (1)
 	{
-		printf("\e[34mPhilo %d is thinking\n", philos->num);
+		// pthread_mutex_lock(&philos->vars->die_lock);
+		// printf("asd: %d\n", *philos->vars->die);
+		// pthread_mutex_unlock(&philos->vars->die_lock);
+		//
+
+		action(philos, "\e[34m%d Philo %d is thinking\n");
 		pthread_mutex_lock(philos->min_fork);
-		printf("\e[36mPhilo %d has taken a min fork\n", philos->num);
+		action(philos, "\e[36m%d Philo %d has taken a min fork\n");
 		pthread_mutex_lock(philos->max_fork);
-		printf("\e[36mPhilo %d has taken a max fork\n", philos->num);
-		printf("\e[32mPhilo %d is eating\n", philos->num);
-		usleep(philos->vars->time_to_eat);
+		action(philos, "\e[36m%d Philo %d has taken a max fork\n");
+		action(philos, "\e[32m%d Philo %d is eating\n");
+		pthread_mutex_lock(&philos->vars->die_lock);
+		if (!*philos->vars->die)
+			usleep(philos->vars->time_to_eat);
+		pthread_mutex_unlock(&philos->vars->die_lock);
 		gettimeofday(&philos->last_eating, NULL);
-		// printf("%ld\n", philos->last_eating.tv_sec * 1000 - philos->last_eating.tv_usec / 1000);
 		pthread_mutex_unlock(philos->min_fork);
-		printf("\e[36mPhilo %d put the min fork back\n", philos->num);
+		action(philos, "\e[36m%d Philo %d put the min fork back\n");
 		pthread_mutex_unlock(philos->max_fork);
-		printf("\e[36mPhilo %d put the max fork back\n", philos->num);
-		printf("\e[35mPhilo %d is sleeping\n", philos->num);
-		usleep(philos->vars->time_to_sleep);
+		action(philos, "\e[36m%d Philo %d put the max fork back\n");
+		action(philos, "\e[35m%d Philo %d is sleeping\n");
+		pthread_mutex_lock(&philos->vars->die_lock);
+		if (!*philos->vars->die)
+			usleep(philos->vars->time_to_sleep);
+		pthread_mutex_unlock(&philos->vars->die_lock);
+		//
+		pthread_mutex_lock(&philos->vars->die_lock);
+		if (*philos->vars->die)
+		{
+			pthread_mutex_unlock(&philos->vars->die_lock);
+			break;
+		}
+		pthread_mutex_unlock(&philos->vars->die_lock);
 	}
 	return (NULL);
 }
@@ -67,11 +111,11 @@ int	ft_init(t_vars *vars)
 	int		i;
 
 	vars->philos = malloc(sizeof(t_philos) * vars->philos_num);
-	if (!vars->philos)
-		return (1);
 	vars->forks = malloc(sizeof(pthread_mutex_t) * vars->philos_num);
-	if (!vars->forks)
-		return (2);
+	vars->die = malloc(sizeof(int));
+	if (!vars->philos || !vars->forks || !vars->die || pthread_mutex_init(&vars->output_lock, NULL) || pthread_mutex_init(&vars->die_lock, NULL))	//output and ide in another if -> destroy
+		return (1);		//return 2???????!!!!!!!!
+	*vars->die = 0;
 	i = -1;
 	while (++i < vars->philos_num)
 		if (pthread_mutex_init(&vars->forks[i], NULL))
@@ -95,11 +139,11 @@ int	ft_init(t_vars *vars)
 	vars->time_to_eat *= 1000;
 	vars->time_to_sleep *= 1000;
 	i = -1;
+	// sim_start
+	gettimeofday(&vars->sim_start, NULL);
 	while (++i < vars->philos_num)
-	{
 		if (pthread_create(&(vars->philos[i].philo), NULL, philo_actions, &vars->philos[i]))
 			return (4);
-	}
 	while (1)
 	{
 		if (philo_is_dead(vars))
@@ -108,13 +152,12 @@ int	ft_init(t_vars *vars)
 			while (++i < vars->philos_num)
 				if (pthread_join(vars->philos[i].philo, NULL))
 					return (5);
-			// printf("asd\n");
 			return (0);
 		}
 	}
 	// i = -1;
 	// while (++i < vars->philos_num)
-	// 	if (pthread_mutex_destroy(&vars->forks[i]))
+	// 	if (pthread_mutex_destroy(&vars->forks[i]))	//output_lock, die_lock
 	// 		return (6);
 	return (0);
 }
