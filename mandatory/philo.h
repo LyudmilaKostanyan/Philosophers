@@ -42,7 +42,7 @@ typedef struct s_vars
 	useconds_t		time_to_eat;
 	useconds_t		time_to_sleep;
 	int				must_eat;
-	int				*die;
+	int				die;
 	struct timeval	sim_start;
 }	t_vars;
 
