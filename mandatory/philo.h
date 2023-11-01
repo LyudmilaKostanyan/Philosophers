@@ -26,8 +26,8 @@ typedef struct s_philos
 	pthread_t		philo;
 	pthread_mutex_t	*min_fork;
 	pthread_mutex_t	*max_fork;
-	int				is_dead;
 	struct timeval	last_eating;
+	int				ate;
 	int				num;
 }	t_philos;
 
@@ -36,7 +36,7 @@ typedef struct s_vars
 	t_philos		*philos;
 	int				philos_num;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	output_lock;
+	pthread_mutex_t	lock;
 	pthread_mutex_t	die_lock;
 	useconds_t		time_to_die;
 	useconds_t		time_to_eat;

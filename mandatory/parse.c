@@ -91,10 +91,11 @@ int	parse(int argc, char **argv, t_vars *vars)
 	if (tmp < 0)
 		return (4);
 	vars->time_to_sleep = tmp;
+	vars->must_eat = 0;
 	if (argc == 6)
 	{
 		vars->must_eat = ft_atoi(argv[5]);
-		if (vars->must_eat < 0)
+		if (vars->must_eat <= 0)
 			return (5);
 	}
 	return (0);
