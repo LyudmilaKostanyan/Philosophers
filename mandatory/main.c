@@ -12,15 +12,29 @@
 
 #include "philo.h"
 
-void	ft_usleep(useconds_t usec)
+int	die(t_philos *philo)
+{
+	int	cond;
+
+	cond = 0;
+	pthread_mutex_lock(&philo->vars->die_lock);
+	if (philo->vars->die)
+		cond++;
+	pthread_mutex_unlock(&philo->vars->die_lock);
+	return (cond);
+}
+
+void	ft_usleep(unsigned long usec)
 {
 	struct timeval	start;
 	struct timeval	now;
 
 	gettimeofday(&start, NULL);
 	gettimeofday(&now, NULL);
-	while ((now.tv_sec * 1000000 + now.tv_usec) - (start.tv_sec * 1000000
-		+ start.tv_usec) < usec)
+	// printf("%lu\t%lu\t%lu\n", (now.tv_sec * 1000000 + now.tv_usec), (start.tv_sec * 1000000
+	// + start.tv_usec), usec);
+	while ((unsigned long)((now.tv_sec * 1000000 + now.tv_usec) - (start.tv_sec * 1000000
+		+ start.tv_usec)) < usec)
 	{
 		usleep(10);
 		gettimeofday(&now, NULL);
@@ -42,11 +56,15 @@ int	philo_is_dead(t_vars *vars)
 		if (vars->must_eat && vars->philos[i].ate == vars->must_eat)
 			cond++;
 		if (vars->philos[i].last_eating.tv_sec
-			&& (time.tv_sec * 1000 + time.tv_usec / 1000)
-			- (vars->philos[i].last_eating.tv_sec * 1000
-			+ vars->philos[i].last_eating.tv_usec / 1000)
+			&& (time.tv_sec * 1000000 + time.tv_usec)
+			- (vars->philos[i].last_eating.tv_sec * 1000000
+			+ vars->philos[i].last_eating.tv_usec)
 			> vars->time_to_die)
 		{
+			printf("%ld\n", (time.tv_sec * 1000000 + time.tv_usec)
+				- (vars->philos[i].last_eating.tv_sec * 1000000
+				+ vars->philos[i].last_eating.tv_usec));
+			printf("%u\n", vars->time_to_die);
 			pthread_mutex_lock(&vars->die_lock);
 			vars->die = 1;
 			pthread_mutex_unlock(&vars->die_lock);
@@ -73,33 +91,13 @@ void	action(t_philos *philo, char *str)
 {
 	struct timeval	time;
 
-	pthread_mutex_lock(&philo->vars->die_lock);
-	if (philo->vars->die)
+	if (!die(philo))
 	{
-		pthread_mutex_unlock(&philo->vars->die_lock);
-		return ;
-	}
-	pthread_mutex_unlock(&philo->vars->die_lock);
-	gettimeofday(&time, NULL);
-	printf(str, (time.tv_sec * 1000 + time.tv_usec / 1000)
+		gettimeofday(&time, NULL);
+		printf(str, (time.tv_sec * 1000 + time.tv_usec / 1000)
 			- (philo->vars->sim_start.tv_sec * 1000
 			+ philo->vars->sim_start.tv_usec / 1000), philo->num);
-	pthread_mutex_lock(&philo->vars->lock);
-	if (str[3] == '2' && philo->vars->must_eat)
-		philo->ate++;
-	pthread_mutex_unlock(&philo->vars->lock);
-}
-
-int	die(t_philos *philo)
-{
-	int	cond;
-
-	cond = 1;
-	pthread_mutex_lock(&philo->vars->die_lock);
-	if (philo->vars->die)
-		cond = 0;
-	pthread_mutex_unlock(&philo->vars->die_lock);
-	return (cond);
+	}
 }
 
 void	*philo_actions(void *data)
@@ -109,15 +107,18 @@ void	*philo_actions(void *data)
 	philo = (t_philos *)data;
 	if (philo->num % 2 == 0)
 		ft_usleep(2000);
-	while (die(philo))
+	while (!die(philo))
 	{
 		pthread_mutex_lock(philo->min_fork);
 		action(philo, "\e[36m%d Philo %d has taken a min fork\n");
 		pthread_mutex_lock(philo->max_fork);
 		action(philo, "\e[36m%d Philo %d has taken a max fork\n");
 		action(philo, "\e[32m%d Philo %d is eating\n");
-		ft_usleep(philo->vars->time_to_eat);
 		gettimeofday(&philo->last_eating, NULL);
+		ft_usleep(philo->vars->time_to_eat);
+		pthread_mutex_lock(&philo->vars->lock);
+		philo->ate++;
+		pthread_mutex_unlock(&philo->vars->lock);
 		pthread_mutex_unlock(philo->min_fork);
 		pthread_mutex_unlock(philo->max_fork);
 		action(philo, "\e[35m%d Philo %d is sleeping\n");
@@ -157,6 +158,7 @@ int	ft_init(t_vars *vars)
 			vars->philos[i].max_fork = &vars->forks[i];
 		}
 	}
+	vars->time_to_die *= 1000;
 	vars->time_to_eat *= 1000;
 	vars->time_to_sleep *= 1000;
 	i = -1;
@@ -174,6 +176,7 @@ int	ft_init(t_vars *vars)
 					return (5);
 			return (0);
 		}
+		// ft_usleep(1000);
 	}
 	// i = -1;
 	// while (++i < vars->philos_num)
