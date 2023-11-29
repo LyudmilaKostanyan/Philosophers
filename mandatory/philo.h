@@ -20,6 +20,11 @@
 # include <pthread.h>
 # include <sys/time.h>
 
+# define EAT "\e[32m%d Philo %d is eating\n\033[0m"
+# define SLEEP "\e[35m%d Philo %d is sleeping\n\033[0m"
+# define THINK "\e[34m%d Philo %d is thinking\n\033[0m"
+# define DIE "\e[31m%ld Philo %d is die\n\033[0m"
+
 typedef struct s_philos
 {
 	struct s_vars	*vars;
