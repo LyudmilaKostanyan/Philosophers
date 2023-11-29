@@ -80,6 +80,7 @@ int	parse(int argc, char **argv, t_vars *vars)
 		return (1);
 	vars->philos_num = ft_atoi(argv[1]);
 	tmp = ft_atoi(argv[2]);
+	// printf("%d\n", tmp);
 	if (tmp < 0 || vars->philos_num < 0)
 		return (2);
 	vars->time_to_die = tmp;
