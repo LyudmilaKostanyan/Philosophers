@@ -1,6 +1,6 @@
 NAME = philo
 CC = cc
-FLAGS = -Wall -Wextra -Werror #-g -fsanitize=thread
+FLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
 FILES_DIR = ./mandatory
 OBJS_DIR = ./objs
 FILES = $(wildcard $(FILES_DIR)/*.c)
@@ -17,7 +17,7 @@ $(NAME) : $(OBJS)
 mkdir:
 	@mkdir -p $(OBJS_DIR)
 
-clean: 
+clean:
 	rm -f $(OBJS)
 	rm -fd $(OBJS_DIR)
 

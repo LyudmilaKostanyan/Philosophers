@@ -21,6 +21,7 @@
 # include <sys/time.h>
 
 # define EAT "\e[32m%d Philo %d is eating\n\033[0m"
+# define FORK "\e[36m%d Philo %d has taken a fork\n\033[0m"
 # define SLEEP "\e[35m%d Philo %d is sleeping\n\033[0m"
 # define THINK "\e[34m%d Philo %d is thinking\n\033[0m"
 # define DIE "\e[31m%ld Philo %d is die\n\033[0m"
@@ -31,7 +32,7 @@ typedef struct s_philos
 	pthread_t		philo;
 	pthread_mutex_t	*min_fork;
 	pthread_mutex_t	*max_fork;
-	struct timeval	last_eating;
+	size_t			last_eating;
 	int				ate;
 	int				num;
 }	t_philos;
@@ -49,11 +50,11 @@ typedef struct s_vars
 	useconds_t		time_to_sleep;
 	int				must_eat;
 	int				die;
-	struct timeval	sim_start;
-	struct timeval	time;
+	size_t			sim_start;
 }	t_vars;
 
 int	parse(int argc, char **argv, t_vars *vars);
 int	ft_strlen(const char *s);
+int	ft_strcmp(const char *s1, const char *s2);
 
 #endif
