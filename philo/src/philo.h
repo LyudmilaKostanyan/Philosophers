@@ -45,12 +45,12 @@ typedef struct s_vars
 	pthread_mutex_t	eating_lock;
 	pthread_mutex_t	die_lock;
 	pthread_mutex_t	time_lock;
-	useconds_t		time_to_die;
-	useconds_t		time_to_eat;
-	useconds_t		time_to_sleep;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	size_t			sim_start;
 	int				must_eat;
 	int				die;
-	size_t			sim_start;
 }	t_vars;
 
 int	parse(int argc, char **argv, t_vars *vars);
