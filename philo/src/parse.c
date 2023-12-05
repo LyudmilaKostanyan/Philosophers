@@ -12,66 +12,6 @@
 
 #include "philo.h"
 
-int	ft_isdigit(int c)
-{
-	if (c >= 48 && c <= 57)
-		return (1);
-	return (0);
-}
-
-int	ft_strlen(const char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
-int	ft_atoi(const char *str)
-{
-	int		i;
-	long	k;
-
-	k = 0;
-	i = 0;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
-		i++;
-	while (str[i] == 48)
-		i++;
-	if (ft_strlen(str + i) > 10)
-		return (-1);
-	while (str[i] >= 48 && str[i] <= 57)
-	{
-		k = k * 10 + (str[i] - 48);
-		i++;
-	}
-	if (k > 2147483647)
-		return (-1);
-	return ((int)k);
-}
-
-int	ft_strcmp(const char *s1, const char *s2)
-{
-	size_t			i;
-	unsigned char	*str1;
-	unsigned char	*str2;
-
-	if (!s1 || !s2)
-		return (1);
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
-	i = 0;
-	while (str1[i] || str2[i])
-	{
-		if (str1[i] != str2[i])
-			return (str1[i] - str2[i]);
-		i++;
-	}
-	return (0);
-}
-
 int	check_args(int argc, char **argv)
 {
 	int	i;
@@ -79,44 +19,43 @@ int	check_args(int argc, char **argv)
 
 	i = 0;
 	while (++i < argc)
+	{
 		if (ft_strlen(argv[i]) == 0)
 			return (1);
+		if (ft_strlen(argv[i]) > 10)
+			return (2);
+	}
 	i = 0;
 	while (++i < argc)
 	{
 		j = -1;
 		while (++j < ft_strlen(argv[i]))
 			if (!ft_isdigit(argv[i][j]) && argv[i][j] != ' ')
-				return (2);
+				return (3);
 	}
 	return (0);
 }
 
 int	parse(int argc, char **argv, t_vars *vars)
 {
-	int	tmp;
+	int	cond;
 
-	if (check_args(argc, argv))
+	if (argc != 5 && argc != 6)
 		return (1);
-	vars->philos_num = ft_atoi(argv[1]);
-	tmp = ft_atoi(argv[2]);
-	if (tmp < 0 || vars->philos_num < 0)
+	cond = check_args(argc, argv);
+	if (cond && cond != 2)
 		return (2);
-	vars->time_to_die = tmp;
-	tmp = ft_atoi(argv[3]);
-	if (tmp < 0)
+	else if (cond == 2)
 		return (3);
-	vars->time_to_eat = tmp;
-	tmp = ft_atoi(argv[4]);
-	if (tmp < 0)
-		return (4);
-	vars->time_to_sleep = tmp;
+	vars->philos_num = ft_atoi(argv[1]);
+	vars->time_to_die = ft_atoi(argv[2]);
+	vars->time_to_eat = ft_atoi(argv[3]) * 1000;
+	vars->time_to_sleep = ft_atoi(argv[4]) * 1000;
 	vars->must_eat = 0;
 	if (argc == 6)
-	{
 		vars->must_eat = ft_atoi(argv[5]);
-		if (vars->must_eat <= 0)
-			return (5);
-	}
+	if (vars->philos_num < 0 || vars->time_to_die < 0 || vars->must_eat < 0
+		|| vars->time_to_eat < 0 || vars->time_to_sleep < 0)
+		return (4);
 	return (0);
 }
