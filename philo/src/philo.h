@@ -45,9 +45,7 @@ typedef struct s_philos
 
 typedef struct s_vars
 {
-	t_philos		*philos;
 	int				philos_num;
-	pthread_mutex_t	*forks;
 	pthread_mutex_t	eating_lock;
 	pthread_mutex_t	die_lock;
 	pthread_mutex_t	time_lock;
@@ -59,6 +57,12 @@ typedef struct s_vars
 	int				die;
 }	t_vars;
 
+typedef struct s_table
+{
+	pthread_mutex_t	*forks;
+	t_philos		*philos;
+}	t_table;
+
 int			ft_isdigit(int c);
 int			ft_strlen(const char *s);
 int			ft_strcmp(const char *s1, const char *s2);
@@ -66,14 +70,11 @@ int			ft_atoi(const char *str);
 int			parse(int argc, char **argv, t_vars *vars);
 long int	get_time(void);
 void		ft_usleep(size_t usec, t_philos *philo);
-int			free_mem(t_vars *vars);
-int			destroy(t_vars *vars, int cond);
+int			free_mem(t_table *table);
+int			destroy(t_vars *vars, t_table *table, int cond);
 int			err_mes(int cond, int func);
-int			mutex_init(t_vars *vars);
-void		forks_init(t_vars *vars);
-int			ft_init(t_vars *vars);
+int			ft_init(t_vars *vars, t_table *table);
 int			die(t_philos *philo);
-int			check_dead(t_vars *vars, int i, int *cond);
-int			philo_is_dead(t_vars *vars);
+int			philo_is_dead(t_vars *vars, t_table *table);
 
 #endif

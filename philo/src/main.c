@@ -55,27 +55,26 @@ void	*philo_actions(void *data)
 	return (NULL);
 }
 
-int	creating_threads(t_vars *vars)
+int	creating_threads(t_vars *vars, t_table *table)
 {
-	int	i;
-
+	int		i;
 	i = -1;
 	while (++i < vars->philos_num)
-		if (pthread_create(&(vars->philos[i].philo), NULL,
-				philo_actions, &vars->philos[i]) && destroy(vars, 0))
+		if (pthread_create(&(table->philos[i].philo), NULL,
+				philo_actions, &table->philos[i]) && destroy(vars, table, 0))
 			return (1);
 	while (1)
 	{
-		if (philo_is_dead(vars))
+		if (philo_is_dead(vars, table))
 		{
 			i = -1;
 			while (++i < vars->philos_num)
-				pthread_join(vars->philos[i].philo, NULL);
-			destroy(vars, 0);
+				pthread_join(table->philos[i].philo, NULL);
+			destroy(vars, table, 0);
 			return (0);
 		}
 	}
-	destroy(vars, 0);
+	destroy(vars, table, 0);
 	return (0);
 }
 
@@ -83,14 +82,15 @@ int	main(int argc, char **argv)
 {
 	t_vars	vars;
 	int		cond;
+	t_table	table;
 
 	cond = parse(argc, argv, &vars);
 	if (err_mes(cond, 1))
 		return (1);
-	cond = ft_init(&vars);
+	cond = ft_init(&vars, &table);
 	if (err_mes(cond, 2))
 		return (2);
-	cond = creating_threads(&vars);
+	cond = creating_threads(&vars, &table);
 	if (err_mes(cond, 3))
 		return (3);
 	return (0);

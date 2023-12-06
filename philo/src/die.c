@@ -24,16 +24,16 @@ int	die(t_philos *philo)
 	return (cond);
 }
 
-int	check_dead(t_vars *vars, int i, int *cond)
+int	check_dead(t_vars *vars, t_table *table, int i, int *cond)
 {
 	pthread_mutex_lock(&vars->eating_lock);
-	if (vars->must_eat && vars->philos[i].ate >= vars->must_eat)
+	if (vars->must_eat && table->philos[i].ate >= vars->must_eat)
 		(*cond)++;
 	pthread_mutex_unlock(&vars->eating_lock);
 	pthread_mutex_lock(&vars->time_lock);
-	if ((vars->philos[i].last_eating && get_time()
-			- vars->philos[i].last_eating > vars->time_to_die)
-		|| (!vars->philos[i].last_eating && get_time()
+	if ((table->philos[i].last_eating && get_time()
+			- table->philos[i].last_eating > vars->time_to_die)
+		|| (!table->philos[i].last_eating && get_time()
 			- vars->sim_start > vars->time_to_die))
 	{
 		pthread_mutex_unlock(&vars->time_lock);
@@ -47,7 +47,7 @@ int	check_dead(t_vars *vars, int i, int *cond)
 	return (0);
 }
 
-int	philo_is_dead(t_vars *vars)
+int	philo_is_dead(t_vars *vars, t_table *table)
 {
 	int	i;
 	int	cond;
@@ -55,7 +55,7 @@ int	philo_is_dead(t_vars *vars)
 	i = -1;
 	cond = 0;
 	while (++i < vars->philos_num)
-		if (check_dead(vars, i, &cond))
+		if (check_dead(vars, table, i, &cond))
 			return (1);
 	if (vars->must_eat && cond == vars->philos_num)
 	{

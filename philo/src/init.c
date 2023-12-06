@@ -12,18 +12,18 @@
 
 #include "philo.h"
 
-int	mutex_init(t_vars *vars)
+int	mutex_init(t_vars *vars, t_table *table)
 {
 	int	i;
 
-	if (pthread_mutex_init(&vars->die_lock, NULL) && free_mem(vars))
+	if (pthread_mutex_init(&vars->die_lock, NULL) && free_mem(table))
 		return (1);
-	if (pthread_mutex_init(&vars->eating_lock, NULL) && free_mem(vars))
+	if (pthread_mutex_init(&vars->eating_lock, NULL) && free_mem(table))
 	{
 		pthread_mutex_destroy(&vars->die_lock);
 		return (2);
 	}
-	if (pthread_mutex_init(&vars->time_lock, NULL) && free_mem(vars))
+	if (pthread_mutex_init(&vars->time_lock, NULL) && free_mem(table))
 	{
 		pthread_mutex_destroy(&vars->die_lock);
 		pthread_mutex_destroy(&vars->eating_lock);
@@ -31,46 +31,46 @@ int	mutex_init(t_vars *vars)
 	}
 	i = -1;
 	while (++i < vars->philos_num)
-		if (pthread_mutex_init(&vars->forks[i], NULL) && destroy(vars, i))
+		if (pthread_mutex_init(&table->forks[i], NULL) && destroy(vars, table, i))
 			return (4);
 	return (0);
 }
 
-void	forks_init(t_vars *vars)
+void	forks_init(t_vars *vars, t_table *table)
 {
 	int	i;
 
 	i = -1;
 	while (++i < vars->philos_num)
 	{
-		vars->philos[i].vars = vars;
-		vars->philos[i].num = i + 1;
-		vars->philos[i].ate = 0;
-		vars->philos[i].last_eating = 0;
+		table->philos[i].vars = vars;
+		table->philos[i].num = i + 1;
+		table->philos[i].ate = 0;
+		table->philos[i].last_eating = 0;
 		if (i < (i + 1) % vars->philos_num)
 		{
-			vars->philos[i].min_fork = &vars->forks[i];
-			vars->philos[i].max_fork = &vars->forks[(i + 1) % vars->philos_num];
+			table->philos[i].min_fork = &table->forks[i];
+			table->philos[i].max_fork = &table->forks[(i + 1) % vars->philos_num];
 		}
 		else
 		{
-			vars->philos[i].min_fork = &vars->forks[(i + 1) % vars->philos_num];
-			vars->philos[i].max_fork = &vars->forks[i];
+			table->philos[i].min_fork = &table->forks[(i + 1) % vars->philos_num];
+			table->philos[i].max_fork = &table->forks[i];
 		}
 	}
 }
 
-int	ft_init(t_vars *vars)
+int	ft_init(t_vars *vars, t_table *table)
 {
-	vars->philos = malloc(sizeof(t_philos) * vars->philos_num);
-	if (!vars->philos)
+	table->philos = malloc(sizeof(t_philos) * vars->philos_num);
+	if (!table->philos)
 		return (1);
-	vars->forks = malloc(sizeof(pthread_mutex_t) * vars->philos_num);
-	if (!vars->forks && free_mem(vars))
+	table->forks = malloc(sizeof(pthread_mutex_t) * vars->philos_num);
+	if (!table->forks && free_mem(table))
 		return (2);
-	if (mutex_init(vars))
+	if (mutex_init(vars, table))
 		return (3);
-	forks_init(vars);
+	forks_init(vars, table);
 	vars->die = 0;
 	vars->sim_start = get_time();
 	return (0);

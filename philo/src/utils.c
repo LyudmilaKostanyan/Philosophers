@@ -35,26 +35,26 @@ void	ft_usleep(size_t usec, t_philos *philo)
 	}
 }
 
-int	free_mem(t_vars *vars)
+int	free_mem(t_table *table)
 {
-	free(vars->philos);
-	free(vars->forks);
+	free(table->philos);
+	free(table->forks);
 	return (1);
 }
 
-int	destroy(t_vars *vars, int cond)
+int	destroy(t_vars *vars, t_table *table, int cond)
 {
 	int	i;
 
-	free_mem(vars);
+	free_mem(table);
 	pthread_mutex_destroy(&vars->die_lock);
 	pthread_mutex_destroy(&vars->eating_lock);
 	pthread_mutex_destroy(&vars->time_lock);
 	i = -1;
 	while (!cond && ++i < vars->philos_num)
-		pthread_mutex_destroy(&vars->forks[i]);
+		pthread_mutex_destroy(&table->forks[i]);
 	while (++i < cond)
-		pthread_mutex_destroy(&vars->forks[i]);
+		pthread_mutex_destroy(&table->forks[i]);
 	return (1);
 }
 
