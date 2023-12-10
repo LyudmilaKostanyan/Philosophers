@@ -21,6 +21,9 @@
 # include <sys/wait.h>
 # include <semaphore.h>
 # include <fcntl.h>
+# include <sys/types.h>
+# include <signal.h>
+# include <pthread.h>
 
 # define ARGS_COUNT_ERR "\e[31mIncorrect number of arguments\n\033[0m"
 # define ARGS_ERR "\e[31mThe arguments contain invalid characters\n\033[0m"
@@ -74,7 +77,6 @@ void		semaphors_unlink();
 int			destroy(t_vars *vars, t_table *table);
 int			err_mes(int cond, int func);
 int			ft_init(t_vars *vars, t_table *table);
-int			die(t_philos *philo);
-int			philo_is_dead(t_vars *vars, t_table *table);
+void		die(t_philos *philo);
 
 #endif

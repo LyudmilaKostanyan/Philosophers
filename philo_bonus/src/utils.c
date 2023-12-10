@@ -25,12 +25,10 @@ void	ft_usleep(size_t usec, t_philos *philo)
 {
 	size_t	start;
 
-	(void)philo;
 	start = get_time();
 	while ((get_time() - start) < usec / 1000)
 	{
-		if (die(philo))
-			break ;
+		die(philo);
 		usleep(10);
 	}
 }
@@ -68,7 +66,5 @@ int	err_mes(int cond, int func)
 		write(2, MALL_ERR, ft_strlen(MALL_ERR));
 	if (func == 2 && cond == 3)
 		write(2, MUTX_ERR, ft_strlen(MUTX_ERR));
-	if (func == 3 && cond == 1)
-		write(2, THRD_ERR, ft_strlen(THRD_ERR));
 	return (1);
 }

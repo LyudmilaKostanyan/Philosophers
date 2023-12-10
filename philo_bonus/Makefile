@@ -1,9 +1,9 @@
-NAME = philo
+NAME = philo_bonus
 CC = cc
 FLAGS = -Wall -Wextra -Werror #-g -fsanitize=thread
 FILES_DIR = ./src
 OBJ_DIR = ./obj
-FILES = $(addprefix $(FILES_DIR)/, die.c init.c main.c mini_libft.c parse.c utils.c)
+FILES = $(addprefix $(FILES_DIR)/, init.c main.c mini_libft.c parse.c utils.c)
 OBJ = $(patsubst $(FILES_DIR)/%.c, $(OBJ_DIR)/%.o, $(FILES))
 
 $(OBJ_DIR)/%.o: $(FILES_DIR)/%.c Makefile $(FILES_DIR)/philo.h

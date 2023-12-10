@@ -12,54 +12,72 @@
 
 #include "philo.h"
 
+void	die(t_philos *philo)
+{
+	sem_wait(philo->vars->time_lock);
+	if ((philo->last_eating && get_time()
+		- philo->last_eating > philo->vars->time_to_die)
+		|| (!philo->last_eating && get_time()
+		- philo->vars->sim_start > philo->vars->time_to_die)
+		|| (philo->vars->must_eat && philo->ate >= philo->vars->must_eat))
+	{
+		printf("%d\n", philo->num);
+		if (!philo->vars->must_eat || philo->ate < philo->vars->must_eat)
+			printf(DIE, get_time() - philo->vars->sim_start, philo->num);
+		sem_post(philo->vars->time_lock);
+		exit(1);
+	}
+	sem_post(philo->vars->time_lock);
+}
+
 void	action(t_philos *philo, char *str)
 {
-	if (!die(philo))
+	printf(str, get_time() - philo->vars->sim_start, philo->num);
+	if (!ft_strcmp(str, EAT))
 	{
-		printf(str, get_time() - philo->vars->sim_start, philo->num);
-		if (!ft_strcmp(str, EAT))
-		{
-			sem_wait(philo->vars->time_lock);
-			//pthread_mutex_lock(&philo->vars->time_lock);
-			philo->last_eating = get_time();
-			sem_post(philo->vars->time_lock);
-			//pthread_mutex_unlock(&philo->vars->time_lock);
-		}
+		sem_wait(philo->vars->time_lock);
+		philo->last_eating = get_time();
+		sem_post(philo->vars->time_lock);
 	}
+}
+
+void	*check_death(void *philo)
+{
+	while (1)
+		die(philo);
+	return (NULL);
 }
 
 void	philo_actions(t_philos *philo)
 {
+	pthread_t	check;
+
+	pthread_create(&check, NULL, &check_death, philo);
 	if (philo->num % 2 == 0)
 		ft_usleep(2000, philo);
-	while (!die(philo))
+	while (1)
 	{
 		sem_wait(philo->vars->forks);
-		//pthread_mutex_lock(philo->min_fork);
 		action(philo, FORK);
 		if (philo->vars->philos_num == 1)
 			break ;
 		sem_wait(philo->vars->forks);
-		//pthread_mutex_lock(philo->max_fork);
 		action(philo, FORK);
 		action(philo, EAT);
 		ft_usleep(philo->vars->time_to_eat, philo);
 		sem_wait(philo->vars->eating_lock);
-		//pthread_mutex_lock(&philo->vars->eating_lock);
 		philo->ate++;
 		sem_post(philo->vars->eating_lock);
-		//pthread_mutex_unlock(&philo->vars->eating_lock);
 		sem_post(philo->vars->forks);
-		//pthread_mutex_unlock(philo->min_fork);
 		sem_post(philo->vars->forks);
-		//pthread_mutex_unlock(philo->max_fork);
 		action(philo, SLEEP);
 		ft_usleep(philo->vars->time_to_sleep, philo);
 		action(philo, THINK);
 	}
+	pthread_join(check, NULL);
 }
 
-int	creating_processes(t_vars *vars, t_table *table)
+void	creating_processes(t_vars *vars, t_table *table)
 {
 	int		i;
 
@@ -67,24 +85,29 @@ int	creating_processes(t_vars *vars, t_table *table)
 	while (++i < vars->philos_num)
 	{
 		table->philos[i].philo = fork();
-		if (table->philos[i].philo == -1 && destroy(vars, table))	//change destroy
+		if (table->philos[i].philo == -1)
 		{
-			//waitpid
-			return (1);
+			printf("\e[31Fork error\n\033[0m");
+			destroy(vars, table);
+			exit(1);
 		}
+		if (table->philos[i].philo == 0)
+			philo_actions(&table->philos[i]);
 	}
 	i = -1;
 	while (++i < vars->philos_num)
-		if (table->philos[i].philo == 0)
-			philo_actions(&table->philos[i]);
-	while (1)
-		if (philo_is_dead(vars, table))
-			break ;
-	i = -1;
-	while (++i < vars->philos_num)
-		waitpid(table->philos[i].philo, NULL, 0);
+	{
+		int j;
+		waitpid(-1, &j, 0);
+		if (WEXITSTATUS(j) == 1)
+		{
+			i = -1;
+			while (++i < vars->philos_num)
+				kill(table->philos[i].philo, SIGKILL);
+			break;
+		}
+	}
 	destroy(vars, table);
-	return (0);
 }
 
 int	main(int argc, char **argv)
@@ -99,8 +122,6 @@ int	main(int argc, char **argv)
 	cond = ft_init(&vars, &table);
 	if (err_mes(cond, 2))
 		return (2);
-	cond = creating_processes(&vars, &table);
-	if (err_mes(cond, 3))
-		return (3);
+	creating_processes(&vars, &table);
 	return (0);
 }
