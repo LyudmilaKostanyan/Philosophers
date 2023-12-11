@@ -33,7 +33,7 @@ void	ft_usleep(size_t usec, t_philos *philo)
 	}
 }
 
-void	semaphors_unlink()
+void	semaphors_unlink(void)
 {
 	sem_unlink("/die_lock");
 	sem_unlink("/eating_lock");
@@ -60,8 +60,8 @@ int	err_mes(int cond, int func)
 		write(2, ARGS_COUNT_ERR, ft_strlen(ARGS_COUNT_ERR));
 	if (func == 1 && cond == 2)
 		write(2, ARGS_ERR, ft_strlen(ARGS_ERR));
-	if (func == 1 && (cond == 3 || cond == 4))
-		write(2, ARGS_LEN_ERR, ft_strlen(ARGS_LEN_ERR));
+	if (func == 1 && cond == 3)
+		write(2, LEN_ERR, ft_strlen(LEN_ERR));
 	if (func == 2 && (cond == 1 || cond == 2))
 		write(2, MALL_ERR, ft_strlen(MALL_ERR));
 	if (func == 2 && cond == 3)

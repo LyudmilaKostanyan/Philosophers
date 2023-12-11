@@ -31,7 +31,8 @@ int	mutex_init(t_vars *vars, t_table *table)
 	}
 	i = -1;
 	while (++i < vars->philos_num)
-		if (pthread_mutex_init(&table->forks[i], NULL) && destroy(vars, table, i))
+		if (pthread_mutex_init(&table->forks[i], NULL)
+			&& destroy(vars, table, i))
 			return (4);
 	return (0);
 }
@@ -50,11 +51,13 @@ void	forks_init(t_vars *vars, t_table *table)
 		if (i < (i + 1) % vars->philos_num)
 		{
 			table->philos[i].min_fork = &table->forks[i];
-			table->philos[i].max_fork = &table->forks[(i + 1) % vars->philos_num];
+			table->philos[i].max_fork = &table->forks[(i + 1)
+				% vars->philos_num];
 		}
 		else
 		{
-			table->philos[i].min_fork = &table->forks[(i + 1) % vars->philos_num];
+			table->philos[i].min_fork = &table->forks[(i + 1)
+				% vars->philos_num];
 			table->philos[i].max_fork = &table->forks[i];
 		}
 	}

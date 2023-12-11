@@ -45,17 +45,17 @@ int	parse(int argc, char **argv, t_vars *vars)
 	cond = check_args(argc, argv);
 	if (cond && cond != 2)
 		return (2);
-	else if (cond == 2)
-		return (3);
 	vars->philos_num = ft_atoi(argv[1]);
 	vars->time_to_die = ft_atoi(argv[2]);
 	vars->time_to_eat = ft_atoi(argv[3]) * 1000;
 	vars->time_to_sleep = ft_atoi(argv[4]) * 1000;
-	vars->must_eat = 0;
+	vars->must_eat = 1;
 	if (argc == 6)
 		vars->must_eat = ft_atoi(argv[5]);
-	if (vars->philos_num < 0 || vars->time_to_die < 0 || vars->must_eat < 0
-		|| vars->time_to_eat < 0 || vars->time_to_sleep < 0)
-		return (4);
+	if (vars->philos_num == 0 || vars->time_to_die == 0 || vars->must_eat == 0
+		|| vars->time_to_eat == 0 || vars->time_to_sleep == 0)
+		return (3);
+	if (argc == 5)
+		vars->must_eat = 0;
 	return (0);
 }

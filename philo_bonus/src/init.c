@@ -12,6 +12,24 @@
 
 #include "philo.h"
 
+void	die(t_philos *philo)
+{
+	sem_wait(philo->vars->time_lock);
+	if ((philo->last_eating && get_time()
+			- philo->last_eating > philo->vars->time_to_die)
+		|| (!philo->last_eating && get_time()
+			- philo->vars->sim_start > philo->vars->time_to_die)
+		|| (philo->vars->must_eat && philo->ate >= philo->vars->must_eat))
+	{
+		usleep(1000);
+		if (!philo->vars->must_eat || philo->ate < philo->vars->must_eat)
+			printf(DIE, get_time() - philo->vars->sim_start, philo->num);
+		sem_post(philo->vars->time_lock);
+		exit(1);
+	}
+	sem_post(philo->vars->time_lock);
+}
+
 int	semaphors_init(t_vars *vars)
 {
 	semaphors_unlink();

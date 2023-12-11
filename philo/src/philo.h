@@ -22,7 +22,7 @@
 
 # define ARGS_COUNT_ERR "\e[31mIncorrect number of arguments\n\033[0m"
 # define ARGS_ERR "\e[31mThe arguments contain invalid characters\n\033[0m"
-# define ARGS_LEN_ERR "\e[31mThe arguments are too long\n\033[0m"
+# define LEN_ERR "\e[31mThe arguments are too long or equal to zero\n\033[0m"
 # define MALL_ERR "\e[31mMalloc error\n\033[0m"
 # define MUTX_ERR "\e[31mMutex initialization error\n\033[0m"
 # define THRD_ERR "\e[31mTread creation error\n\033[0m"
@@ -38,7 +38,7 @@ typedef struct s_philos
 	pthread_t		philo;
 	pthread_mutex_t	*min_fork;
 	pthread_mutex_t	*max_fork;
-	long int		last_eating;
+	size_t			last_eating;
 	int				ate;
 	int				num;
 }	t_philos;
@@ -49,10 +49,10 @@ typedef struct s_vars
 	pthread_mutex_t	eating_lock;
 	pthread_mutex_t	die_lock;
 	pthread_mutex_t	time_lock;
-	long int		time_to_die;
-	long int		time_to_eat;
-	long int		time_to_sleep;
-	long int		sim_start;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	size_t			sim_start;
 	int				must_eat;
 	int				die;
 }	t_vars;

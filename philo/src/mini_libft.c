@@ -41,14 +41,14 @@ int	ft_atoi(const char *str)
 	while (str[i] == 48)
 		i++;
 	if (ft_strlen(str + i) > 10)
-		return (-1);
+		return (0);
 	while (str[i] >= 48 && str[i] <= 57)
 	{
 		k = k * 10 + (str[i] - 48);
 		i++;
 	}
 	if (k > 2147483647)
-		return (-1);
+		return (0);
 	return ((int)k);
 }
 

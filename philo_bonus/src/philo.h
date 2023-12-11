@@ -27,10 +27,11 @@
 
 # define ARGS_COUNT_ERR "\e[31mIncorrect number of arguments\n\033[0m"
 # define ARGS_ERR "\e[31mThe arguments contain invalid characters\n\033[0m"
-# define ARGS_LEN_ERR "\e[31mThe arguments are too long\n\033[0m"
+# define LEN_ERR "\e[31mThe arguments are too long or equal to zero\n\033[0m"
 # define MALL_ERR "\e[31mMalloc error\n\033[0m"
 # define MUTX_ERR "\e[31mMutex initialization error\n\033[0m"
 # define THRD_ERR "\e[31mTread creation error\n\033[0m"
+# define FORK_ERR "\e[31Fork error\n\033[0m"
 # define EAT "\e[32m%d Philo %d is eating\n\033[0m"
 # define FORK "\e[36m%d Philo %d has taken a fork\n\033[0m"
 # define SLEEP "\e[35m%d Philo %d is sleeping\n\033[0m"
@@ -41,7 +42,7 @@ typedef struct s_philos
 {
 	struct s_vars	*vars;
 	pid_t			philo;
-	long int		last_eating;
+	size_t			last_eating;
 	int				ate;
 	int				num;
 }	t_philos;
@@ -52,10 +53,10 @@ typedef struct s_vars
 	sem_t		*eating_lock;
 	sem_t		*die_lock;
 	sem_t		*time_lock;
-	long int	time_to_die;
-	long int	time_to_eat;
-	long int	time_to_sleep;
-	long int	sim_start;
+	size_t		time_to_die;
+	size_t		time_to_eat;
+	size_t		time_to_sleep;
+	size_t		sim_start;
 	int			must_eat;
 	int			die;
 	sem_t		*forks;
@@ -73,7 +74,7 @@ int			ft_atoi(const char *str);
 int			parse(int argc, char **argv, t_vars *vars);
 long int	get_time(void);
 void		ft_usleep(size_t usec, t_philos *philo);
-void		semaphors_unlink();
+void		semaphors_unlink(void);
 int			destroy(t_vars *vars, t_table *table);
 int			err_mes(int cond, int func);
 int			ft_init(t_vars *vars, t_table *table);

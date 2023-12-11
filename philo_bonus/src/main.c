@@ -12,22 +12,11 @@
 
 #include "philo.h"
 
-void	die(t_philos *philo)
+void	*check_death(void *philo)
 {
-	sem_wait(philo->vars->time_lock);
-	if ((philo->last_eating && get_time()
-		- philo->last_eating > philo->vars->time_to_die)
-		|| (!philo->last_eating && get_time()
-		- philo->vars->sim_start > philo->vars->time_to_die)
-		|| (philo->vars->must_eat && philo->ate >= philo->vars->must_eat))
-	{
-		printf("%d\n", philo->num);
-		if (!philo->vars->must_eat || philo->ate < philo->vars->must_eat)
-			printf(DIE, get_time() - philo->vars->sim_start, philo->num);
-		sem_post(philo->vars->time_lock);
-		exit(1);
-	}
-	sem_post(philo->vars->time_lock);
+	while (1)
+		die(philo);
+	return (NULL);
 }
 
 void	action(t_philos *philo, char *str)
@@ -39,13 +28,6 @@ void	action(t_philos *philo, char *str)
 		philo->last_eating = get_time();
 		sem_post(philo->vars->time_lock);
 	}
-}
-
-void	*check_death(void *philo)
-{
-	while (1)
-		die(philo);
-	return (NULL);
 }
 
 void	philo_actions(t_philos *philo)
@@ -87,33 +69,27 @@ void	creating_processes(t_vars *vars, t_table *table)
 		table->philos[i].philo = fork();
 		if (table->philos[i].philo == -1)
 		{
-			printf("\e[31Fork error\n\033[0m");
+			write(2, FORK_ERR, ft_strlen(FORK_ERR));
 			destroy(vars, table);
 			exit(1);
 		}
 		if (table->philos[i].philo == 0)
 			philo_actions(&table->philos[i]);
 	}
-	i = -1;
-	while (++i < vars->philos_num)
+	waitpid(-1, &i, 0);
+	if (WEXITSTATUS(i) == 1)
 	{
-		int j;
-		waitpid(-1, &j, 0);
-		if (WEXITSTATUS(j) == 1)
-		{
-			i = -1;
-			while (++i < vars->philos_num)
-				kill(table->philos[i].philo, SIGKILL);
-			break;
-		}
+		i = -1;
+		while (++i < vars->philos_num)
+			kill(table->philos[i].philo, SIGKILL);
 	}
 	destroy(vars, table);
 }
 
 int	main(int argc, char **argv)
 {
-	t_vars	vars;
 	int		cond;
+	t_vars	vars;
 	t_table	table;
 
 	cond = parse(argc, argv, &vars);
