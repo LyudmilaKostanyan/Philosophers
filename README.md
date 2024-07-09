@@ -1,8 +1,14 @@
 # Philosophers
 
-The Philosophers project at 42 is a common multi-threading programming exercise based on the famous "Dining Philosophers" problem, formulated by Edsger Dijkstra. The problem involves a scenario with five philosophers who alternately think and eat. They sit at a table with five plates and five forks. Each philosopher needs two forks to eat, but there are only five forks available. The challenge is to design a concurrency solution that ensures no philosopher starves (each can eventually eat), avoids deadlock (where philosophers could be stuck waiting forever for a fork), and avoids unnecessary delays (philosophers shouldn't wait if forks are available).
+The Philosophers project at 42 is a common multi-threading programming exercise based on the famous "Dining Philosophers" problem, formulated by Edsger Dijkstra. The problem involves a scenario with five philosophers who alternately think and eat. They sit at a table with five plates and five forks. Each philosopher needs two forks to eat, but there are only five forks available. The challenge is to design a concurrency solution that ensures no philosopher starves (each can eventually eat), avoids deadlock (where philosophers could be stuck waiting forever for a fork), and avoids unnecessary delays (philosophers shouldn't wait if forks are available). There are certain constraints:
 
-Key concepts and goals of the project include:
+1. Each philosopher must alternate between thinking and eating.
+2. To eat, a philosopher must pick up two forks (one at a time).
+3. Philosophers share forks, but a fork can only be held by one philosopher at a time.
+4. The solution should prevent deadlocks (where philosophers are stuck waiting indefinitely for resources) and ensure that each philosopher can eventually eat.
+
+
+### Key concepts and goals of the project include:
 
 1. **Concurrency and Synchronization**: Understanding how to manage concurrent operations and ensure proper synchronization between threads.
 2. **Mutexes and Semaphores**: Learning to use mutexes (mutual exclusions) and semaphores to control access to shared resources.
